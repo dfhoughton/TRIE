@@ -1,0 +1,10 @@
+TRIE
+====
+
+David F. Houghton
+14 March, 2011
+
+The code in this project will convert a list of phrases into a TRIE regex for
+faster pattern matchin in Java.
+
+See included license.
