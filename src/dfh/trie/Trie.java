@@ -70,7 +70,8 @@ public class Trie {
 	public static final int PERL_SAFE = 64;
 
 	/**
-	 * Eliminate common suffixes as well as prefixes.
+	 * Whether to condense long repeating sequences; e.g., aaaaaaaaaaaa ->
+	 * (?:aa){6}
 	 */
 	public static final int CONDENSE = 128;
 
@@ -196,7 +197,7 @@ public class Trie {
 					&& ((flags & SPACEONLY) == SPACEONLY))
 				throw new TrieException(
 						"SPACEANDTAB | SPACEONLY is inconsistent");
-			StringBuffer b = new StringBuffer();
+			StringBuilder b = new StringBuilder();
 			if (state.backtrack && state.perlSafe)
 				b.append("(?").append(state.groupMod);
 			if ((flags & SPACEONLY) == SPACEONLY)
@@ -250,7 +251,7 @@ public class Trie {
 		// and groups words with similar prefixes together
 		Arrays.sort(ar, comparator);
 
-		StringBuffer buffer = new StringBuffer(charCount);
+		StringBuilder buffer = new StringBuilder(charCount);
 		if (state.caseInsensitive)
 			buffer.append("(?i:");
 		// create the lookup list
@@ -274,7 +275,7 @@ public class Trie {
 		// remove boundary characters
 		if (state.autoBoundary) {
 			// grab enough space in one go
-			StringBuffer b2 = new StringBuffer((int) (buffer.length() * 1.5));
+			StringBuilder b2 = new StringBuilder((int) (buffer.length() * 1.5));
 			int start = 0, ptr = 0;
 			for (int lim = buffer.length(); ptr < lim; ptr++) {
 				if (buffer.charAt(ptr) == BOUNDARY) {
@@ -305,9 +306,9 @@ public class Trie {
 			.compile("\\d*\\}");
 	private static final Pattern digitPattern = Pattern.compile("\\d+");
 
-	private static StringBuffer simpleRepeatingPatternCondenser(State state,
-			StringBuffer buffer) {
-		StringBuffer s = new StringBuffer(buffer);
+	private static StringBuilder simpleRepeatingPatternCondenser(State state,
+			StringBuilder buffer) {
+		StringBuilder s = new StringBuilder(buffer);
 		Matcher m = repetionPattern.matcher(s);
 		while (m.find()) {
 			String smallestMatch = m.group(1);
@@ -347,7 +348,7 @@ public class Trie {
 				Pattern testPattern = Pattern.compile(smallestMatch);
 
 				// seems to be good, so we condense it
-				StringBuffer b = new StringBuffer(s.substring(0, pos));
+				StringBuilder b = new StringBuilder(s.substring(0, pos));
 				if (smallLength == 1) {
 					b.append(smallestMatch);
 				} else {
@@ -522,7 +523,7 @@ public class Trie {
 				// look for common prefixes
 				PatternAndEncapsulation pe = patternNoExtractableSuffix(ar,
 						state.backtrack ? state : state.noSuffixCopy());
-				StringBuffer buffer = new StringBuffer(pe.pattern.length()
+				StringBuilder buffer = new StringBuilder(pe.pattern.length()
 						+ suffix.length());
 				buffer.append(pe.pattern);
 				buffer.append(suffix);
@@ -575,12 +576,12 @@ public class Trie {
 		case 1:
 			return subsegments.get(0).segment;
 		default:
-			StringBuffer segment = null;
+			StringBuilder segment = null;
 			// check to see if the segments can be converted to a character
 			// class
 			if (compressible) {
 				// reduce segments to a character class
-				segment = new StringBuffer(subsegments.size());
+				segment = new StringBuilder(subsegments.size());
 				boolean containsBoundary = false;
 				// make sure dash isn't misinterpreted as part of a range
 				// expression
@@ -681,7 +682,7 @@ public class Trie {
 					segment.append('-');
 				String characters = classMetaCharacters.matcher(
 						segment.toString()).replaceAll("$1");
-				segment = new StringBuffer(characters.length()
+				segment = new StringBuilder(characters.length()
 						+ (containsBoundary ? 8 : 2));
 				if (containsBoundary)
 					segment.append("(?").append(state.groupMod);
@@ -694,7 +695,7 @@ public class Trie {
 				if (subsegments.size() == 1)
 					return subsegments.get(0).segment;
 				Iterator<OffsetAndPattern> i = subsegments.iterator();
-				segment = new StringBuffer("(?");
+				segment = new StringBuilder("(?");
 				segment.append(state.groupMod);
 				segment.append(i.next().segment.pattern);
 				while (i.hasNext())
@@ -762,7 +763,7 @@ public class Trie {
 			// figure out whether any member of the set equals the prefix
 			boolean lastEmpty = ar[op.offset - 1].length() == length;
 
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			// quote this prefix
 			PatternAndEncapsulation prefix = quotemeta(
 					ar[offset].substring(0, length), state);
@@ -806,7 +807,7 @@ public class Trie {
 		boolean singleton = s.length() == 1;
 		if (state.whitespace == null)
 			return new PatternAndEncapsulation(subquote(s, state), singleton);
-		StringBuffer b = new StringBuffer();
+		StringBuilder b = new StringBuilder();
 		if (s.startsWith(" ")) {
 			b.append(state.whitespace);
 			singleton = false;
@@ -835,7 +836,7 @@ public class Trie {
 	 */
 	private static String subquote(String s, State state) {
 		Matcher m = needsQuotes.matcher(s);
-		StringBuffer b = new StringBuffer(s.length() * 2);
+		StringBuilder b = new StringBuilder(s.length() * 2);
 		int start = 0;
 		while (m.find()) {
 			b.append(s.substring(start, m.start()));
