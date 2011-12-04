@@ -19,12 +19,12 @@ import dfh.trie.Trie;
  * @author David Houghton
  * 
  */
-public class treify {
+public class trieify {
 
 	/**
 	 * Procedural class.
 	 */
-	private treify() {
+	private trieify() {
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class treify {
 	}
 
 	private static Cli parseArguments(String[] args) {
-		String name = treify.class.getName();
+		String name = trieify.class.getName();
 		Object[][][] spec = {
 				{ { Opt.NAME, name } },//
 				{ { "case-sensitive", 'I' }, { "preserve case distinctions" } },//
@@ -146,8 +146,15 @@ public class treify {
 								+ "option is provided. Whitespace will be \n"
 								+ "trimmed off the ends of all phrases and interior whitespace will be represented by some possessive character \n"
 								+ "class sequence, \\s++ by default. Thus 'foo bar' will be converted into an expression "
-								+ " that matches 'foo', \n"
-								+ "some amount of whitespace, and 'bar'." } },//
+								+ "that matches 'foo', \n"
+								+ "some amount of whitespace, and 'bar'.\n\n"
+								+ "Note that the argument '--' will block option parsing, so if you want to convert '-foo' and '-bar' into \n"
+								+ "(?i:-(?>foo|bar)\\b) you provide "
+								+ name
+								+ " the arguments '-- -foo -bar'. The single character options can be bundled, \n"
+								+ "so \n\n\t" + name
+								+ " -InC foo bar \n\nis the same as \n\n\t"
+								+ name + " -I -n -C foo bar" } },//
 		};
 		Cli cli = new Cli(spec, Modifiers.HELP);
 		cli.parse(args);
