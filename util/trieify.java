@@ -106,7 +106,7 @@ public class trieify {
 						{ "use (?>a|b|c) rather than [abc]" } },//
 				{
 						{ "no-condense", 'D' },
-						{ "if set, long repeating sequences will be left alone; aaaaaaaaaa -/-> (?:aa){5}" } },//
+						{ "if set, long repeating sequences will be left alone; aaaaaaaaaa -/-> a{10}" } },//
 				{
 						{ "backtracking", 'b' },
 						{ "whether to drop the possessive suffix + and possessive group prefix (?>" } },//
@@ -126,9 +126,8 @@ public class trieify {
 				{ { "output", 'o', String.class },
 						{ "write output to file", "file" } },//
 				{ { Opt.TEXT } },//
-				{
-						{ "perl-safe", 'p' },
-						{ "whether to avoid constructs unavailable in Perl 5.8" } },//
+				{ { "perl-safe", 'p' },
+						{ "avoid constructs unavailable in Perl 5.8" } },//
 				{
 						{ "java-safe", 'j' },
 						{ "double all \\ characters so trie can be pasted into a Java string" } },//

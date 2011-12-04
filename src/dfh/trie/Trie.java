@@ -299,7 +299,7 @@ public class Trie {
 	 * Just looks for repeating sequences
 	 */
 	private static final Pattern repetionPattern = Pattern
-			.compile("(.{2,16}?)\\1++");
+			.compile("(.{1,16}?)\\1++");
 	private static final Pattern precedingGroupPattern = Pattern
 			.compile("\\{\\d*$");
 	private static final Pattern trailingGroupPattern = Pattern
