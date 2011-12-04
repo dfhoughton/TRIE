@@ -1,0 +1,11 @@
+/**
+ * Headers for grammar pages.
+ */
+
+var hdrs = {
+	"home" : "http://dfhoughton.com",
+	"Trie" : "index.html",
+	"performance" : "performance.html",
+	"API" : "api/index.html",
+	"download" : "download.html"
+};
