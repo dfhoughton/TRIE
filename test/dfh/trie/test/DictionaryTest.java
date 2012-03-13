@@ -483,7 +483,7 @@ public class DictionaryTest {
 	 */
 	private boolean selfMatch(String[] ar, int flags) throws TrieException {
 		// clean ar of duplicates
-		Map<String, Integer> set = new HashMap<String, Integer>(ar.length);
+		Map<String, Integer> set = new HashMap<String, Integer>(ar.length * 2);
 		for (String s : ar)
 			set.put(s, 0);
 		ar = set.keySet().toArray(new String[set.size()]);

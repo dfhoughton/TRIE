@@ -8,7 +8,6 @@ import java.util.List;
 
 import dfh.cli.Cli;
 import dfh.cli.Cli.Opt;
-import dfh.cli.Modifiers;
 import dfh.trie.Trie;
 
 /**
@@ -122,7 +121,7 @@ public class trieify {
 				{ { Opt.TEXT } },//
 				{ { "file", 'f', String.class },
 						{ "take word list from file; repeatable", "file" },
-						{ Cli.REPEATABLE } },//
+						{ Cli.Res.REPEATABLE } },//
 				{ { "output", 'o', String.class },
 						{ "write output to file", "file" } },//
 				{ { Opt.TEXT } },//
@@ -155,7 +154,7 @@ public class trieify {
 								+ " -InC foo bar \n\nis the same as \n\n\t"
 								+ name + " -I -n -C foo bar" } },//
 		};
-		Cli cli = new Cli(spec, Modifiers.HELP);
+		Cli cli = new Cli(spec, Cli.Mod.HELP);
 		cli.parse(args);
 		return cli;
 	}

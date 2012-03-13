@@ -45,7 +45,7 @@ public class RegexBugFinder {
 			int length = 32;
 			chars = (32 + 1) * 10000 + 4;
 			System.out.println("generating " + size + " lines");
-			set = new HashMap<String, Integer>(size);
+			set = new HashMap<String, Integer>(size * 2);
 			for (int i = 0; i < size; i++) {
 				StringBuffer b = new StringBuffer(length);
 				for (int j = 0; j < length; j++) {
@@ -72,7 +72,7 @@ public class RegexBugFinder {
 
 			System.out.println("reading in " + args[0]
 					+ " and eliminating empty lines");
-			set = new HashMap<String, Integer>(Integer.parseInt(line));
+			set = new HashMap<String, Integer>(Integer.parseInt(line) * 2);
 			reader = new BufferedReader(new FileReader(f));
 			Pattern nonWhitespacePattern = Pattern.compile("\\S");
 			chars = 4;
@@ -199,7 +199,8 @@ public class RegexBugFinder {
 
 	private static boolean seekErrors(int chars, String[] ar) {
 		boolean foundError = false;
-		Map<String, Integer> keepers = new HashMap<String, Integer>(ar.length);
+		Map<String, Integer> keepers = new HashMap<String, Integer>(
+				ar.length * 2);
 		for (String s : ar)
 			keepers.put(s.trim().replaceAll("\\s+", " "), 0);
 		ar = keepers.keySet().toArray(new String[keepers.size()]);
