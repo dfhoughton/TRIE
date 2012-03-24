@@ -2,12 +2,39 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>dfh.trie</title>
+<title>dfh.cli.Cli</title>
+<link rel="icon" type="image/png" href="/dfh.png" />
 <link href="../css/dfh.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../scripts/pageutils.js"></script>
 <script type="text/javascript" src="headers.json"></script>
+<style type="text/css">
+.sm {
+	font-size: small;
+}
+</style>
 </head>
 <body onLoad="dfh.prepare('Trie', 'dfh.trie')">
-
+	<h1>Trie Regular Expressions in Java</h1>
+	<p>
+		A <a href="http://en.wikipedia.org/wiki/Trie">trie</a> regular
+		expression lets you match expressions in a list more or less equally
+		quickly however long the list. Some regular expression engines, such
+		as that in Perl 5.10+, will automatically convert an alternation into
+		a tree for optimal efficiency. Java's regex engine does not. So I've
+		written this library to provide this functionality for Java. It
+		provides a little additional functionality as well -- normalizing
+		whitespace into
+		<code>\s++</code>
+		if you wish, for example, and marking word boundaries. So, for
+		example, if you wish to match
+		<code>{an,angry,aardvark}</code>
+		it will give you the expression
+	</p>
+	<pre>(?i:\ba(?&gt;n(?&gt;gry)?+|ardvark)\b)</pre>
+	<p>this documentation is still in a preliminary stage. I will add
+		some usage details in the future. For the time being, however, you
+		look at the API and the sample code available in the downloadable
+		tarball.</p>
+	<!--  <span id="toc"></span> -->
 </body>
 </html>

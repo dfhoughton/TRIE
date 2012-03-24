@@ -1,3 +1,11 @@
+/*
+ * dfh.trie -- a library for generating trie regular expressions
+ * 
+ * Copyright (C) 2012 David F. Houghton
+ * 
+ * This software is licensed under the LGPL. Please see accompanying NOTICE file
+ * and lgpl.txt.
+ */
 package dfh.trie;
 
 import java.text.Collator;
@@ -510,7 +518,7 @@ public class Trie {
 				}
 
 				suffix = quotemeta(suffix, state).pattern;
-				for (int i = 0, j = 0; i < ar.length; i++, j++) {
+				for (int i = 0; i < ar.length; i++) {
 					int wordLength = ar[i].length();
 					ar[i] = ar[i].substring(0, wordLength - numChars);
 				}

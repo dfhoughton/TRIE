@@ -1,11 +1,12 @@
 /**
- * Headers for grammar pages.
+ * Headers for CLI pages.
  */
 
 var hdrs = {
 	"home" : "http://dfhoughton.com",
-	"Trie" : "index.html",
-	"performance" : "performance.html",
+	"CLI" : "index.html",
 	"API" : "api/index.html",
-	"download" : "download.html"
+	"download" : "download.html",
 };
+
+var version = "1.0";
