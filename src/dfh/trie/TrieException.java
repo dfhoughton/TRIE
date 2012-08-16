@@ -14,7 +14,7 @@ package dfh.trie;
  * @author David Houghton
  * 
  */
-public class TrieException extends Exception {
+public class TrieException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public TrieException(String message) {

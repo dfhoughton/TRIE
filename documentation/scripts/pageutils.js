@@ -158,11 +158,11 @@ var dfh = {
 					}
 					for (i = 0; i < n.attributes.length; i++) {
 						var a = n.attributes[i];
-						// webkit hack
-						// for some reason, this only works if I test the regex twice
-						// for node values
-						regex.test(a.nodeValue);
-						if (regex.test(a.nodeValue)) {
+						// hack
+						// for some reason, this only works for Firefox if I use
+						// an in-line regex; webkit required me to test the
+						// expression twice but otherwise worked
+						if (/__VERSION__/g.test(a.nodeValue)) {
 							a.nodeValue = a.nodeValue.replace(regex, version);
 						}
 					}
