@@ -1,4 +1,5 @@
-1.02
+1.02 25 Oct 2012
+  * added Trie.REVERSE
 
 1.01 30 Aug 2012
   * made TrieException a subclass of RuntimeException

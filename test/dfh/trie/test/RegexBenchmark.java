@@ -47,6 +47,7 @@ public class RegexBenchmark {
 				chars += line.length() + 7;
 			}
 		}
+		reader.close();
 		String[] lines = set.toArray(new String[set.size()]);
 		set = null;
 		System.out.println(lines.length + " good lines");

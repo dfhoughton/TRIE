@@ -34,6 +34,19 @@ public class DictionaryTest {
 	}
 
 	@Test
+	public void reversal() {
+		String[] ar = { "cat", "dog", "llama" };
+		String[] reversed = { "tac", "god", "amall" };
+		try {
+			Pattern p = Pattern.compile(Trie.trie(ar, Trie.REVERSE));
+			for (String s : reversed)
+				assertTrue(p.matcher(s).matches());
+		} catch (TrieException e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
 	public void test1() {
 		String[] ar = { "a", "a!" };
 		try {

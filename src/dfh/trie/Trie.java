@@ -36,21 +36,21 @@ public class Trie {
 
 	/**
 	 * If set, and whitespace is not being preserved, any whitespace found will
-	 * be replaced with <code>[ \\u00a0]+</code> (perhaps with the possessive
-	 * modifier <code>+</code>).
+	 * be replaced with {@code [ \\u00a0]+} (perhaps with the possessive
+	 * modifier {@code +}).
 	 * <p>
-	 * If no special whitespace option is set, whitespace becomes
-	 * <code>\\s+</code>. See {@link #SPACEANDTAB}.
+	 * If no special whitespace option is set, whitespace becomes {@code \\s+}.
+	 * See {@link #SPACEANDTAB}.
 	 */
 	public static final int SPACEONLY = 2;
 
 	/**
 	 * If set, and whitespace is not being preserved, any whitespace found will
-	 * be replaced with <code>[ \\u00a0\\t]+</code> (perhaps with the possessive
-	 * modifier <code>+</code>).
+	 * be replaced with {@code [ \\u00a0\\t]+} (perhaps with the possessive
+	 * modifier {@code +}).
 	 * <p>
-	 * If no special whitespace option is set, whitespace becomes
-	 * <code>\\s+</code>. See {@link #SPACEONLY}.
+	 * If no special whitespace option is set, whitespace becomes {@code \\s+}.
+	 * See {@link #SPACEONLY}.
 	 */
 	public static final int SPACEANDTAB = 4;
 
@@ -71,22 +71,26 @@ public class Trie {
 	public static final int AUTO_BOUNDARY = 32;
 
 	/**
-	 * If set, regexes will not include the "possessive" modifier -- e.g.,
-	 * <code>*+</code>, <code>++</code>, <code>?+</code> -- which is not
-	 * understood by versions of Perl prior to 5.10.
+	 * If set, regexes will not include the "possessive" modifier &mdash; e.g.,
+	 * {@code *+}, {@code ++}, {@code ?+} &mdash; which is not understood by
+	 * versions of Perl prior to 5.10.
 	 */
 	public static final int PERL_SAFE = 64;
 
 	/**
-	 * Whether to condense long repeating sequences; e.g., aaaaaaaaaaaa ->
-	 * (?:aa){6}
+	 * Whether to condense long repeating sequences; e.g.,
+	 * {@code aaaaaaaaaaaa -> (?:aa) 6}
 	 */
 	public static final int CONDENSE = 128;
 
 	/**
-	 * Use <code>(?:a|b|c)</code> in lieu of <code>[a-c]</code>.
+	 * Use {@code (?:a|b|c)} in lieu of {@code [a-c]}.
 	 */
 	public static final int NO_CHAR_CLASSES = 256;
+	/**
+	 * Reverse all strings before compiling the regex.
+	 */
+	public static final int REVERSE = 512;
 
 	/**
 	 * {@link #SPACEANDTAB} | {@link #AUTO_BOUNDARY}
@@ -185,10 +189,10 @@ public class Trie {
 	 * backtracking, however.
 	 * 
 	 * @param ar
-	 *            the array of <code>Strings</code> to match.
+	 *            the array of {@code Strings} to match.
 	 * @param flags
 	 *            modifiers for regular expression; e.g.,
-	 *            <code>CONDENSE | AUTOBOUNDARY</code>
+	 *            {@code CONDENSE | AUTOBOUNDARY}
 	 * @return {@link String} parsable as a regular expression
 	 * @throws TrieException
 	 *             for inconsistent parameters
@@ -226,6 +230,7 @@ public class Trie {
 		state.autoBoundary = (flags & AUTO_BOUNDARY) == AUTO_BOUNDARY;
 		state.condense = (flags & CONDENSE) == CONDENSE;
 		state.charclasses = (flags & NO_CHAR_CLASSES) != NO_CHAR_CLASSES;
+		boolean reverse = (flags & REVERSE) == REVERSE;
 
 		// clean out duplicates and estimate a maximum length for the regex
 		int charCount = 5;
@@ -240,6 +245,8 @@ public class Trie {
 					continue;
 				if (state.caseInsensitive)
 					s = s.toLowerCase();
+				if (reverse)
+					s = reverse(s);
 				// add boundary characters
 				if (state.autoBoundary) {
 					if (Character.isLetterOrDigit(s.charAt(0)))
@@ -299,6 +306,19 @@ public class Trie {
 		}
 
 		return buffer.toString();
+	}
+
+	/**
+	 * Reverses characters in string.
+	 * 
+	 * @param s
+	 * @return s reversed
+	 */
+	private static String reverse(String s) {
+		char[] car = new char[s.length()];
+		for (int i = 0, j = s.length() - 1; i < s.length(); i++, j--)
+			car[j] = s.charAt(i);
+		return new String(car);
 	}
 
 	// some regexes used by simpleRepeatingPatternCondenser
@@ -446,12 +466,12 @@ public class Trie {
 	}
 
 	/**
-	 * Reduces a sorted array of <code>Strings</code> to a regular expression
-	 * matching any <code>String</code> in that array.
+	 * Reduces a sorted array of {@code Strings} to a regular expression
+	 * matching any {@code String} in that array.
 	 * 
 	 * @param ar
-	 *            the set of <code>Strings</code> that should be converted into
-	 *            a pattern
+	 *            the set of {@code Strings} that should be converted into a
+	 *            pattern
 	 * @param state
 	 *            various fields particular to current thread
 	 * @return matching regex
@@ -547,16 +567,15 @@ public class Trie {
 	}
 
 	/**
-	 * Takes a sorted array of <code>Strings</code> and returns a matching
-	 * regex. This code assumes the <code>Strings</code> in the array have no
-	 * common suffix that can be extracted. (It is possible that the array
-	 * contains a one-letter <code>String</code> that is also a common suffix,
-	 * but such a suffix is not extractable. If it were extracted, the set of
-	 * Strings matched by the regex would not be the same as the set that
-	 * produced it.)
+	 * Takes a sorted array of {@code Strings} and returns a matching regex.
+	 * This code assumes the {@code Strings} in the array have no common suffix
+	 * that can be extracted. (It is possible that the array contains a
+	 * one-letter {@code String} that is also a common suffix, but such a suffix
+	 * is not extractable. If it were extracted, the set of Strings matched by
+	 * the regex would not be the same as the set that produced it.)
 	 * 
 	 * @param ar
-	 *            <code>Strings</code> to match
+	 *            {@code Strings} to match
 	 * @param state
 	 *            various fields particular to current thread
 	 * @return matching regex
@@ -715,25 +734,23 @@ public class Trie {
 	}
 
 	/**
-	 * Takes in a sorted array of <code>Strings</code> and an offset into that
-	 * array. Finds the subsequence of the array that has the same prefix as the
-	 * string at the offset. Produces a pattern matching this subsequence.
-	 * Returns this pattern plus the offset for the beginning of the next
-	 * pattern.
+	 * Takes in a sorted array of {@code Strings} and an offset into that array.
+	 * Finds the subsequence of the array that has the same prefix as the string
+	 * at the offset. Produces a pattern matching this subsequence. Returns this
+	 * pattern plus the offset for the beginning of the next pattern.
 	 * 
 	 * Offset is useful for beginning search for next subsequence with a common
 	 * prefix.
 	 * 
 	 * @param ar
-	 *            a set of <code>Strings</code> to match.
+	 *            a set of {@code Strings} to match.
 	 * @param offset
 	 *            offset into array where set of strings matching subpattern
 	 *            begins
 	 * @param state
 	 *            various fields particular to current thread
-	 * @return <code>OffsetAndPattern</code> containing current pattern and
-	 *         beginning of next set of <code>Strings</code> for which a pattern
-	 *         must be found
+	 * @return {@code OffsetAndPattern} containing current pattern and beginning
+	 *         of next set of {@code Strings} for which a pattern must be found
 	 */
 	private static OffsetAndPattern patternCommonPrefix(String[] ar,
 			int offset, State state) {
@@ -805,11 +822,11 @@ public class Trie {
 	 * whitespace-matching pattern.
 	 * 
 	 * @param s
-	 *            <code>String</code> to quote
+	 *            {@code String} to quote
 	 * @param whitespace
 	 *            nature of whitespace for regex; null means preserver
 	 *            whitespace
-	 * @return quoted <code>String</code>
+	 * @return quoted {@code String}
 	 */
 	private static PatternAndEncapsulation quotemeta(String s, State state) {
 		boolean singleton = s.length() == 1;
@@ -839,8 +856,8 @@ public class Trie {
 	 * Simple test adding in meta-character quoting when it might be necessary.
 	 * 
 	 * @param s
-	 *            <code>String</code> to quote
-	 * @return quoted <code>String</code>
+	 *            {@code String} to quote
+	 * @return quoted {@code String}
 	 */
 	private static String subquote(String s, State state) {
 		Matcher m = needsQuotes.matcher(s);

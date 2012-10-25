@@ -8,6 +8,7 @@ import java.util.List;
 
 import dfh.cli.Cli;
 import dfh.cli.Cli.Opt;
+import dfh.cli.coercions.FileCoercion;
 import dfh.trie.Trie;
 
 /**
@@ -41,16 +42,16 @@ public class trieify {
 				String line;
 				while ((line = reader.readLine()) != null)
 					phrases.add(line);
+				reader.close();
 			}
 			phrases.addAll(cli.argList());
 			String re = Trie.trie(phrases, options);
 			if (cli.bool("java-safe"))
 				re = re.replaceAll("\\\\", "\\\\\\\\");
-			String fn = cli.string("output");
-			if (fn == null)
+			File f = (File) cli.object("output");
+			if (f == null)
 				System.out.println(re);
 			else {
-				File f = new File(fn);
 				BufferedWriter writer = new BufferedWriter(new FileWriter(f));
 				writer.write(re);
 				writer.close();
@@ -71,6 +72,8 @@ public class trieify {
 			options |= Trie.CONDENSE;
 		if (cli.bool("backtracking"))
 			options |= Trie.BACKTRACKING;
+		if (cli.bool("reverse"))
+			options |= Trie.REVERSE;
 		int count = 0;
 		if (cli.bool("whitespace-characters")) {
 			count++;
@@ -109,7 +112,7 @@ public class trieify {
 				{
 						{ "backtracking", 'b' },
 						{ "whether to drop the possessive suffix + and possessive group prefix (?>" } },//
-				{ { Opt.TEXT } },//
+				{},//
 				{ { "whitespace-characters", 'w' },
 						{ "treat whitespace characters the same as others" } },//
 				{
@@ -118,12 +121,13 @@ public class trieify {
 				{
 						{ "space-only", 'y' },
 						{ "treat whitespace characters as signifying [ \\u00a0]" } },//
-				{ { Opt.TEXT } },//
+				{ { "reverse", 'r' },
+						{ "reverse all strings before compiling the regex" } },//
+				{},//
 				{ { "file", 'f', String.class },
-						{ "take word list from file; repeatable", "file" },
+						{ "take word list from file", "file" },
 						{ Cli.Res.REPEATABLE } },//
-				{ { "output", 'o', String.class },
-						{ "write output to file", "file" } },//
+				{ { "output", 'o', FileCoercion.C }, { "write output to file" } },//
 				{ { Opt.TEXT } },//
 				{ { "perl-safe", 'p' },
 						{ "avoid constructs unavailable in Perl 5.8" } },//
@@ -154,7 +158,7 @@ public class trieify {
 								+ " -InC foo bar \n\nis the same as \n\n\t"
 								+ name + " -I -n -C foo bar" } },//
 		};
-		Cli cli = new Cli(spec, Cli.Mod.HELP);
+		Cli cli = new Cli(spec);
 		cli.parse(args);
 		return cli;
 	}

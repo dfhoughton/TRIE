@@ -83,6 +83,7 @@ public class RegexBugFinder {
 					chars += line.length() + 7;
 				}
 			}
+			reader.close();
 			lines = set.keySet().toArray(new String[set.size()]);
 			System.out.println(lines.length + " good lines");
 		}
