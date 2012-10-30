@@ -1,4 +1,5 @@
 1.03
+  * got rid of DEFAULTS constant: was SPACE_AND_TAB | AUTOBOUNDARY
 
 1.02 25 Oct 2012
   * added Trie.REVERSE

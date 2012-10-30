@@ -93,11 +93,6 @@ public class Trie {
 	public static final int REVERSE = 512;
 
 	/**
-	 * {@link #SPACEANDTAB} | {@link #AUTO_BOUNDARY}
-	 */
-	public static final int DEFAULTS = SPACEANDTAB | AUTO_BOUNDARY;
-
-	/**
 	 * A character used to represent word boundaries. I use the null character
 	 * since it's unlikely to be passed in as input.
 	 */
