@@ -218,9 +218,20 @@ CASEINSENSITIVE | AUTO_BOUNDARY | CONDENSE
 		interested in. In this case:
 	</p>
 	<pre>String re = Trie.trie(new String[] { "c&euro;t", "d&euro;g" },
-    Trie.CASEINSENSITIVE).replaceAll("&euro;", "[aeiou]");</pre>
+    Trie.CASEINSENSITIVE | Trie.NO_CHAR_CLASSES).replaceAll("&euro;", "[aeiou]");</pre>
 	<p>producing</p>
 	<pre class="results">(?i:(?>d[aeiou]g|c[aeiou]t))</pre>
+	<p>
+		It's necessary if you're using this trick to use the
+		<code>NO_CHAR_CLASSES</code>
+		option to prevent constructing something like
+		<code>(?>c[[aeiou]x]t)</code>
+		. With
+		<code>NO_CHAR_CLASSES</code>
+		this will be
+		<code>(?>c(?>[aeiou]|x)t)</code>
+		.
+	</p>
 	<h2>
 		<code>trieify</code>
 	</h2>
@@ -246,9 +257,13 @@ CASEINSENSITIVE | AUTO_BOUNDARY | CONDENSE
 	<pre>#!/bin/sh
 
 java -jar ~/jars/trieify.jar "$@"</pre>
-	<p>You'll have to fix the path to point to the correct jar, of
-		course. Here's <code>trieify</code>'s usage information:</p>
-		<pre class="results">USAGE: trieify [options] &lt;phrase&gt;*
+	<p>
+		You'll have to fix the path to point to the correct jar, of course.
+		Here's
+		<code>trieify</code>
+		's usage information:
+	</p>
+	<pre class="results">USAGE: trieify [options] &lt;phrase&gt;*
 
   condense word lists into trie regex
 
