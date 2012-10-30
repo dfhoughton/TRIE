@@ -1,4 +1,4 @@
-1.03
+1.03 30 Oct 2012
   * got rid of DEFAULTS constant: was SPACE_AND_TAB | AUTOBOUNDARY
   * documentation fleshed out
 
