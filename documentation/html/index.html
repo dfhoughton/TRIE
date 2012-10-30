@@ -31,10 +31,270 @@
 		it will give you the expression
 	</p>
 	<pre>(?i:\ba(?&gt;n(?&gt;gry)?+|ardvark)\b)</pre>
-	<p>this documentation is still in a preliminary stage. I will add
-		some usage details in the future. For the time being, however, you
-		look at the API and the sample code available in the downloadable
-		tarball.</p>
-	<!--  <span id="toc"></span> -->
+	<p>Note that the expression returned will always be in its own
+		group -- set of parentheses -- so you can compose it into a larger
+		regular expression as you would a character.</p>
+	<p>
+		I have used
+		<code>dfh.trie.Trie</code>
+		to compile regular expressions matching lists of hundreds of thousands
+		of words. It takes a while to compile such an expression but it
+		matches as quickly as an expression matching a single word.
+	</p>
+	<span id="toc"></span>
+	<h2>An Example</h2>
+	<p>The class below compiles a variety of regular expressions with
+		varying options.</p>
+	<pre>import static dfh.trie.Trie.AUTO_BOUNDARY;
+import static dfh.trie.Trie.BACKTRACKING;
+import static dfh.trie.Trie.CASEINSENSITIVE;
+import static dfh.trie.Trie.CONDENSE;
+import static dfh.trie.Trie.NO_CHAR_CLASSES;
+import static dfh.trie.Trie.PRESERVE_WHITESPACE;
+import static dfh.trie.Trie.trie;
+
+import java.lang.reflect.Field;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import dfh.trie.Trie;
+
+class Sampler {
+
+	/*
+	 * <b>some words to look for</b>
+	 */
+	static String[] words = { 
+		"cat", 
+		"cot", 
+		"dog",           // <b>NOTE</b>
+		"Dig",           // case
+		"elephant",
+		"eeeeeeeeek",    // long repeating sequence
+		"elevator shaft" // interior whitespace
+	};
+
+	/*
+	 * <b>a string to look in</b>
+	 */
+	static String sentence = "The categorical cottager dogged the elephant "
+			+ "dig's elevator   shaft while shouting 'eeeeeeeeeeeeeeek!'";
+
+	public static void main(String[] args) throws IllegalArgumentException,
+			IllegalAccessException {
+		// <b>we try some options</b>
+		test(0);
+		test(AUTO_BOUNDARY);
+		test(CONDENSE);
+		test(BACKTRACKING);
+		test(CASEINSENSITIVE);
+		test(PRESERVE_WHITESPACE);
+		test(NO_CHAR_CLASSES);
+		test(AUTO_BOUNDARY | CONDENSE | CASEINSENSITIVE);
+	}
+
+	static void test(int options) throws IllegalArgumentException,
+			IllegalAccessException {
+		String re = <b>trie(words, options)</b>;
+		Pattern p = <b>Pattern.compile(re)</b>;
+		Matcher m = p.matcher(sentence);
+		describeOptions(options);
+		System.out.println(re);
+		while (m.find())
+			System.out.printf("  %s%n", m.group());
+		System.out.println();
+	}
+
+	static void describeOptions(int options) throws IllegalAccessException {
+		boolean first = true;
+		for (Field f : Trie.class.getFields()) {
+			if (f.getType().equals(int.class)) {
+				int flag = f.getInt(null);
+				if ((options &amp; flag) != flag)
+					continue;
+				if (first)
+					first = false;
+				else
+					System.out.print(" | ");
+				System.out.print(f.getName());
+			}
+		}
+		if (!first)
+			System.out.println();
+	}
+
+}</pre>
+	<p>The output of this is</p>
+	<pre class="results">(?>e(?>le(?>vator\s++shaf|phan)t|eeeeeeeek)|dog|c[ao]t|Dig)
+  cat
+  cot
+  dog
+  elephant
+  elevator   shaft
+  eeeeeeeeek
+
+AUTO_BOUNDARY
+(?><b>\b</b>(?>e(?>le(?>vator\s++shaf|phan)t|eeeeeeeek)|dog|c[ao]t|Dig)<b>\b</b>)
+  elephant
+  elevator   shaft
+
+CONDENSE<span class="fn"><code>dfh.trie.Trie</code> will look for repeating patterns of up to 16 characters. 
+<code>Trie.trie(new String[]{"foofoofoofoo"}, Trie.CONDENSE)</code>, for instance, will give you <code>(?>(?:foo){4})</code>.
+<code>Trie</code> will only replace the repeating sequence with the condensed version if this will produce a smaller
+regular expression, so <code>Trie.trie(new String[]{"foofoofoo"}, Trie.CONDENSE)</code> gives you <code>(?>foofoofoo)</code>
+rather than <code>(?>(?:foo){3})</code> -- the latter expression is actually one character longer than the former.</span>
+(?>e(?>le(?>vator\s++shaf|phan)t|<b>e{8}k</b>)|dog|c[ao]t|Dig)
+  cat
+  cot
+  dog
+  elephant
+  elevator   shaft
+  eeeeeeeeek
+
+BACKTRACKING
+(?<b>:</b>e(?<b>:</b>le(?<b>:</b>vator\s<b>+</b>shaf|phan)t|eeeeeeeek)|dog|c[ao]t|Dig)
+  cat
+  cot
+  dog
+  elephant
+  elevator   shaft
+  eeeeeeeeek
+
+CASEINSENSITIVE
+<b>(?i:</b>(?>e(?>le(?>vator\s++shaf|phan)t|eeeeeeeek)|d[io]g|c[ao]t)<b>)</b>
+  cat
+  cot
+  dog
+  elephant
+  dig
+  elevator   shaft
+  eeeeeeeeek
+
+PRESERVE_WHITESPACE
+(?>e(?>le(?>vator shaf|phan)t|eeeeeeeek)|dog|c[ao]t|Dig)
+  cat
+  cot
+  dog
+  elephant
+  eeeeeeeeek
+
+NO_CHAR_CLASSES
+(?>e(?>le(?>vator\s++shaf|phan)t|eeeeeeeek)|dog|c<b>(?>o|a)</b>t|Dig)
+  cat
+  cot
+  dog
+  elephant
+  elevator   shaft
+  eeeeeeeeek
+
+CASEINSENSITIVE | AUTO_BOUNDARY | CONDENSE
+(?i:\b(?>e(?>le(?>vator\s++shaf|phan)t|e{8}k)|d[io]g|c[ao]t)\b)
+  elephant
+  dig
+  elevator   shaft</pre>
+	<h2>The Unusual Character Trick</h2>
+	<p>
+		Suppose you want to compile a regular expression out of a list of
+		regular expressions. Well, this isn't really what
+		<code>dfh.trie.Trie</code>
+		was designed for. It isn't <a
+			href="http://search.cpan.org/search?query=Regexp%3A%3AAssemble&mode=module"><code>Regexp::Assemble</code></a>.
+		However, there is one little trick you can use to do something a
+		little similar. Say you want to match
+		<code>c[aeiou]t|d[aeiou]g</code>
+		-- that is, you want to match particular sequences of vowels and
+		consonants where the vowels can be any vowel but the consonants must
+		occur in a particular order. What you do is you pick some character
+		that isn't otherwise used (and isn't a regex meta-character due to be
+		escaped),
+		<code>x</code>
+		, say, or
+		<code>&euro;</code>
+		, and replace all the vowels in your words with this character. You
+		then compile the regex the ordinary way, and then do a
+		search-and-replace, replacing the unusual character with an atomic
+		regular expression -- you can attach a quantifier to it and the entire
+		expression will be quantified -- matching the sub-pattern you're
+		interested in. In this case:
+	</p>
+	<pre>String re = Trie.trie(new String[] { "c&euro;t", "d&euro;g" },
+    Trie.CASEINSENSITIVE).replaceAll("&euro;", "[aeiou]");</pre>
+	<p>producing</p>
+	<pre class="results">(?i:(?>d[aeiou]g|c[aeiou]t))</pre>
+	<h2>
+		<code>trieify</code>
+	</h2>
+	<p>
+		I find I often want a regular expression to match a smallish number of
+		phrases and it would be nice to have a command line utility that would
+		whip it up for me. Such a utility is included in the tarball
+		downloadable on <a href="download.html">the download page</a>. It's
+		heart is the class
+		<code>trieify</code>
+		in the
+		<code>util/</code>
+		directory. This class uses <a href="/cli/index.html"><code>dfh.cli</code></a>
+		for command line parsing, and being a Java program it's a bit of a
+		pain to convert into a command line utility. For this purpose I put a
+		shell script called
+		<code>trieify</code>
+		in
+		<code>~/bin/</code>
+		. <span class="fn">I use Linux. If all of this sounds
+			mysterious to you, it probably isn't worth your trouble.</span>
+	</p>
+	<pre>#!/bin/sh
+
+java -jar ~/jars/trieify.jar "$@"</pre>
+	<p>You'll have to fix the path to point to the correct jar, of
+		course. Here's <code>trieify</code>'s usage information:</p>
+		<pre class="results">USAGE: trieify [options] &lt;phrase&gt;*
+
+  condense word lists into trie regex
+
+    --case-sensitive -I                preserve case distinctions
+    --no-boundary -n                   do not assume word boundaries in input
+    --no-character-classes -C          use (?&gt;a|b|c) rather than [abc]
+    --no-condense -D                   if set, long repeating sequences will be
+                                       left alone; aaaaaaaaaa -/-&gt; a{10}
+    --backtracking -b                  whether to drop the possessive suffix +
+                                       and possessive group prefix (?&gt;
+
+    --whitespace-characters -w         treat whitespace characters the same as
+                                       others
+    --space-and-tab -s                 treat whitespace characters as
+                                       signifying [ \u00a0\t]
+    --space-only -y                    treat whitespace characters as
+                                       signifying [ \u00a0]
+
+    --file -f                  &lt;file&gt;  take word list from file; repeatable
+    --output -o                &lt;file&gt;  write output to file
+
+    --perl-safe -p                     avoid constructs unavailable in Perl 5.8
+    --java-safe -j                     double all \ characters so trie can be
+                                       pasted into a Java string
+
+    --help -? -h                       print usage information
+
+trieify provides command line access to class dfh.trie.Trie, letting you condense
+word lists into a trie regex. The word list will consist of any command line 
+arguments or the lines read in from files specified by the --file argument.
+
+Note that whitespace receives special treatment unless the --whitespace option is
+provided. Whitespace will be trimmed off the ends of all phrases and interior 
+whitespace will be represented by some possessive character class sequence, 
+\s++ by default. Thus 'foo bar' will be converted into an expression that matches
+'foo', some amount of whitespace, and 'bar'.
+
+Note that the argument '--' will block option parsing, so if you want to convert
+'-foo' and '-bar' into (?i:-(?&gt;foo|bar)\b) you provide trieify the arguments 
+'-- -foo -bar'. The single character options can be bundled, so
+
+	trieify -InC foo bar 
+
+is the same as
+
+	trieify -I -n -C foo bar
+		</pre>
 </body>
 </html>

@@ -143,7 +143,7 @@ public class Trie {
 	 * @throws TrieException
 	 */
 	public static String trie(String[] ar) throws TrieException {
-		return trie(ar, DEFAULTS);
+		return trie(ar, 0);
 	}
 
 	/**
